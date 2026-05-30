@@ -1,0 +1,43 @@
+.store_profile{
+    display: flex;
+    flex-direction: column;
+    padding: 28px 20px;
+}
+.store_profile h4{
+font-family: 'Inter';
+font-size: 16px;
+font-weight: 600;
+line-height: 19.36px;
+padding-left: 20px;
+}
+.store_profile p{
+font-family: 'Inter';
+font-size: 14px;
+font-weight: 400;
+line-height: 16.94px;
+color:#868C9A;
+white-space: nowrap;
+overflow: hidden;  
+text-overflow: ellipsis;
+padding-left: 20px;
+}
+a{ 
+    color:#868C9A !important;
+    text-decoration: none !important;
+    font-family:'Inter';
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 19.36px;
+    text-align: left;    
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    padding: 15px;
+    padding-left: 35px;
+    gap:20px;
+}
+.active{
+    background-color: #F2F8DF !important;
+    border-right: 7px solid #7D9F20 !important;
+
+}

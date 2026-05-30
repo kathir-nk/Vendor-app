@@ -1,0 +1,23 @@
+@import url("https://cdn.syncfusion.com/ej2/material.css");
+
+.TimePicker_container{
+    display: flex;
+    align-items: center;
+    gap: 50px;
+
+}
+.Time{
+    color: #BEBEBE;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+@media(max-width:450px){
+    .TimePicker_container{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+    } 
+}

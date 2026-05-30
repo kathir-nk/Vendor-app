@@ -1,0 +1,46 @@
+.AddProduct{
+    display: flex;
+    gap: 40px;
+    flex-direction: column;
+}
+
+.Product_purchase{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+.save_change_button{
+    font-family: 'Inter';
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    letter-spacing: 1px;
+    text-align: center;
+    align-self: center;
+    width: 40%;
+    padding: 13px 88px 13px 88px;
+    gap: 10px;
+    border-radius: 8px;
+    outline: none;
+    border: none;
+    opacity: 0px;
+    background: #D9D9D9;
+    color: white;
+}
+@media (max-width:650px) {
+    .Product_purchase{
+        display: flex;
+        flex-direction: column;
+        gap:40px;
+    }  
+}
+@media  (max-width:1052px) {
+    .save_change_button{
+        width: 60%;
+  } 
+}
+@media (max-width:862px) {
+    .save_change_button{
+        width: 90%;
+  }
+}

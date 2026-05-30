@@ -1,0 +1,81 @@
+.login_form{
+    width: 100%;
+    height: 100%;
+    padding: 20px 0px;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap:10px;
+}
+.login_form img{
+    width: 90px;
+    height: 90px;
+}
+.login_form h6{
+    font-family: 'Inter';
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 38.73px;
+    text-align: center;
+}
+.login_form p{
+    width: 65%;
+    font-family: 'Inter';
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 21.78px;
+    text-align: center;
+    letter-spacing: 1px;
+    word-spacing: 5px;
+    color:  #868C9A;
+}
+.form_control{
+    margin-top: 20px;
+    height: 100px ;
+    width: 90% ;
+}
+.form_control input{
+    height: fit-content ;
+    width: 88% ;
+    padding: 15px 20px ;
+    border-radius: 6px ;
+    outline: none ;
+    border: 1px solid #E0E0E0 ;
+    margin-left: 21px;
+}
+.login_submit_content{
+   width: 80%;
+
+}
+.login_submit_content button{
+    border: none;
+    outline: none;
+    background-color: #E1E1E1;
+    width: 100%;
+    font-size: 86px;
+    font-family: 'Inter';
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 41.78px;
+    margin-bottom: 15px;
+}
+.login_submit_content p{
+    width: 100%;
+    font-family: 'Inter';
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 16.94px;
+}
+
+@media (max-width:400px) {
+    .form_control input{
+        height: fit-content ;
+        width: 88% ;
+        padding: 15px 20px ;
+        border-radius: 6px ;
+        outline: none ;
+        border: 1px solid #E0E0E0 ;
+    }
+}

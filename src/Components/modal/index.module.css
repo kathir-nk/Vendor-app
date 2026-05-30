@@ -1,0 +1,105 @@
+/* .modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20000;
+   
+  }
+
+  .modal {
+    background: white;
+    padding: 35px;
+    padding-bottom: 10px;
+    border-radius: 8px;
+    width: 60%;
+    max-width: 338px;
+    text-align: center;
+    position: relative;
+  }
+  
+  .modalContent {
+    margin-bottom: 20px;
+  }
+
+  .modalContent h6{
+    padding-top:20px ;
+    padding-left: 30px;
+    text-align: center;
+    font-family: 'Inter';
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24.2px;
+    cursor: pointer;
+  }
+   */
+
+   .modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20000;
+  }
+
+  .modal {
+    background: white;
+    padding: 35px;
+    padding-bottom: 10px;
+    border-radius: 8px;
+    width: 60%;
+    max-width: 338px;
+    text-align: center;
+    position: relative;
+  }
+  .Modalprepare{
+    background: white;
+    padding: 35px;
+    padding-bottom: 10px;
+    border-radius: 8px;
+    width: 60%;
+    max-width: 838px;
+    height: 460px;
+    overflow: scroll;
+    text-align: center;
+    position: relative;
+  }
+  .Modalprepare::-webkit-scrollbar{
+    display: none;
+  }
+  .modalContent {
+    margin-bottom: 20px;
+  }
+
+  .modalContent h6{
+    padding-top:20px ;
+    padding-left: 30px;
+    text-align: center;
+    font-family: 'Inter';
+    font-size: var(--font-subheader);
+    font-weight: 600;
+    line-height: 24.2px;
+    cursor: pointer;
+  }
+  @media (max-width: 768px) {
+    .modal ,.Modalprepare{
+      width: 80%; 
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .modal {
+      width: 95%;
+    }
+  }
