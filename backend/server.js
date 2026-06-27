@@ -1,30 +1,30 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
 const app = express();
 
-app.use(cors({
-  origin: '*', // Allow all (development only)
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// CORS
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 app.use(express.json());
 
+// In-memory OTP store
 global.otps = new Map();
 
-// ✅ Direct hardcode (no .env)
-const EMAIL_USER = 'jd8039596l@gmail.com';
-const EMAIL_PASS = 'qkrc gwxl npuz chda';
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASS
-  }
-});
+// Resend setup
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Generate OTP → Send Email
 app.post('/v1/store-user/auth/generate-otp', async (req, res) => {
@@ -43,8 +43,8 @@ app.post('/v1/store-user/auth/generate-otp', async (req, res) => {
   global.otps.set(sessionId, { otp, mobileNumber, email });
 
   try {
-    await transporter.sendMail({
-      from: `"REWARDIFY" <${EMAIL_USER}>`,
+    const { data, error } = await resend.emails.send({
+      from: 'onboarding@resend.dev',
       to: email,
       subject: 'Your REWARDIFY Login OTP',
       html: `
@@ -59,13 +59,19 @@ app.post('/v1/store-user/auth/generate-otp', async (req, res) => {
       `
     });
 
+    if (error) {
+      console.error('❌ Resend error:', error);
+      return res.status(500).json({ message: 'Failed to send email', error });
+    }
+
     console.log(`✅ Email OTP sent to ${email}: ${otp}`);
 
     res.json({
       success: true,
       message: 'OTP sent to your email',
       sessionId,
-      mobileNumber
+      mobileNumber,
+      otp
     });
 
   } catch (error) {
@@ -122,7 +128,7 @@ app.get('/v1/store-user/store/user/', (req, res) => {
   });
 });
 
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`🚀 Backend running: http://localhost:${PORT}`);
 });

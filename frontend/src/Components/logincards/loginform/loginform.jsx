@@ -43,7 +43,7 @@ const LoginForm = () => {
           mobileNumber: values.phnumber.trim(),
           email: values.email.trim(),
           sessionId: response.data.sessionId,
-          otp: response.data.otp  // ✅ ADDED
+          otp: response.data.otp
         },
       });
 

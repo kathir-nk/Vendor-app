@@ -12,11 +12,8 @@ const VerifyOtp = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // ✅ Get all data from login page
   const { mobileNumber, email, sessionId, otp: serverOtp } = location.state || {};
-  // ✅ serverOtp defined here!
 
-  // Redirect if no mobile number
   useEffect(() => {
     if (!mobileNumber) {
       alert('Please enter mobile number first');
@@ -42,7 +39,6 @@ const VerifyOtp = () => {
   const [resending, setResending] = useState(false);
   const inputRefs = useRef([]);
 
-  // Timer countdown
   useEffect(() => {
     if (timeLeft > 0) {
       const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
@@ -50,7 +46,6 @@ const VerifyOtp = () => {
     }
   }, [timeLeft]);
 
-  // Auto-focus next input
   const handleInputChange = (e, index) => {
     const value = e.target.value;
     if (value && index < 3) {
@@ -58,14 +53,12 @@ const VerifyOtp = () => {
     }
   };
 
-  // Handle backspace to previous input
   const handleKeyDown = (e, index) => {
     if (e.key === 'Backspace' && !e.target.value && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
-  // Verify OTP
   const handleVerifyOtp = async (enteredOtp) => {
     try {
       console.log("🔐 Verifying OTP:", enteredOtp, "for", mobileNumber);
@@ -78,7 +71,6 @@ const VerifyOtp = () => {
 
       console.log("✅ VERIFY SUCCESS:", response.data);
 
-      // Store auth token & user data
       if (response.data?.token) {
         localStorage.setItem('authToken', response.data.token);
       }
@@ -96,7 +88,6 @@ const VerifyOtp = () => {
     }
   };
 
-  // Resend OTP
   const handleResendOtp = async () => {
     if (resending) return;
     
@@ -112,7 +103,6 @@ const VerifyOtp = () => {
       console.log("✅ RESEND SUCCESS:", response.data);
       setTimeLeft(59);
       
-      // Update sessionId for new OTP
       if (response.data?.sessionId) {
         navigate('/verify', {
           state: {
@@ -139,7 +129,6 @@ const VerifyOtp = () => {
     onSubmitProps.setSubmitting(false);
   };
 
-  // Format timer display
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -152,7 +141,6 @@ const VerifyOtp = () => {
       <h6>Verify your details</h6>
       <p>Enter OTP sent to <strong>{email}</strong></p>
       
-      {/* ✅ Show OTP hint for testing */}
       {serverOtp && (
         <p style={{ color: '#00d4ff', fontSize: '12px', marginBottom: '10px' }}>
           Hint: Your OTP is {serverOtp}
