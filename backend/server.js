@@ -1,134 +1,142 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const express = require('express');
-const cors = require('cors');
-const { Resend } = require('resend');
+const express = require("express");
+const cors = require("cors");
+const nodemailer = require("nodemailer");
 
 const app = express();
 
-// CORS
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
-
+app.use(cors());
 app.use(express.json());
 
-// In-memory OTP store
+// OTP Store
 global.otps = new Map();
 
-// Resend setup
-const resend = new Resend(process.env.RESEND_API_KEY);
+// SMTP Transport
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
-// Generate OTP → Send Email
-app.post('/v1/store-user/auth/generate-otp', async (req, res) => {
-  const { mobileNumber, email } = req.body;
-  
-  if (!mobileNumber || !email) {
-    return res.status(400).json({
-      message: 'Mobile number and email required',
-      error: 'Bad Request'
-    });
-  }
-
-  const otp = Math.floor(1000 + Math.random() * 9000).toString();
-  const sessionId = Date.now().toString();
-
-  global.otps.set(sessionId, { otp, mobileNumber, email });
-
+// Generate OTP
+app.post("/v1/store-user/auth/generate-otp", async (req, res) => {
   try {
-    const { data, error } = await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: email,
-      subject: 'Your REWARDIFY Login OTP',
-      html: `
-        <div style="font-family: Arial; max-width: 400px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #00d4ff; text-align: center;">🔐 REWARDIFY OTP</h2>
-          <p>Your OTP for login is:</p>
-          <div style="background: #1a1a2e; padding: 20px; text-align: center; border-radius: 10px; margin: 20px 0;">
-            <h1 style="color: #00d4ff; letter-spacing: 10px; margin: 0; font-size: 36px;">${otp}</h1>
-          </div>
-          <p style="color: #666; font-size: 12px;">Valid for 5 minutes. Mobile: ${mobileNumber}</p>
-        </div>
-      `
-    });
+    const { mobileNumber, email } = req.body;
 
-    if (error) {
-      console.error('❌ Resend error:', error);
-      return res.status(500).json({ message: 'Failed to send email', error });
+    if (!mobileNumber || !email) {
+      return res.status(400).json({
+        message: "Mobile number and email required",
+      });
     }
 
-    console.log(`✅ Email OTP sent to ${email}: ${otp}`);
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const sessionId = Date.now().toString();
 
-    res.json({
-      success: true,
-      message: 'OTP sent to your email',
-      sessionId,
+    global.otps.set(sessionId, {
+      otp,
       mobileNumber,
-      otp
+      email,
     });
 
-  } catch (error) {
-    console.error('❌ Email failed:', error.message);
-    res.status(500).json({ message: 'Failed to send email', error: error.message });
+    await transporter.sendMail({
+      from: `"Rewardify" <${process.env.EMAIL_FROM}>`,
+      to: email,
+      subject: "Your Rewardify Login OTP",
+      html: `
+        <div style="font-family:Arial;padding:20px">
+          <h2>🔐 Rewardify OTP</h2>
+          <p>Your OTP is:</p>
+
+          <h1 style="letter-spacing:8px;color:#2563eb">
+            ${otp}
+          </h1>
+
+          <p>This OTP is valid for 5 minutes.</p>
+        </div>
+      `,
+    });
+
+    console.log(`✅ OTP Sent : ${email} -> ${otp}`);
+
+    return res.json({
+      success: true,
+      message: "OTP sent successfully",
+      sessionId,
+      mobileNumber,
+    });
+  } catch (err) {
+    console.error("SMTP ERROR :", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to send OTP",
+      error: err.message,
+    });
   }
 });
 
 // Verify OTP
-app.post('/v1/store-user/auth/login', (req, res) => {
+app.post("/v1/store-user/auth/login", (req, res) => {
   const { mobileNumber, otp, sessionId } = req.body;
-  
+
   if (!sessionId) {
-    return res.status(400).json({ message: 'Session ID required' });
+    return res.status(400).json({
+      message: "Session ID required",
+    });
   }
-  
+
   const session = global.otps.get(sessionId);
-  
+
   if (!session) {
-    return res.status(400).json({ message: 'Session expired or invalid' });
+    return res.status(400).json({
+      message: "Session expired",
+    });
   }
 
   if (session.mobileNumber !== mobileNumber) {
-    return res.status(400).json({ message: 'Mobile number mismatch' });
+    return res.status(400).json({
+      message: "Mobile number mismatch",
+    });
   }
 
   if (session.otp !== otp) {
-    return res.status(400).json({ message: 'Invalid OTP' });
+    return res.status(400).json({
+      message: "Invalid OTP",
+    });
   }
 
   global.otps.delete(sessionId);
 
-  res.json({
+  return res.json({
     success: true,
-    token: 'fake-jwt-token-' + Date.now(),
-    refreshToken: 'fake-refresh-token-' + Date.now(),
-    user: { 
-      id: 'user-' + Date.now(),
-      mobileNumber, 
-      name: 'User ' + mobileNumber,
-      email: session.email
-    }
+    token: "fake-token-" + Date.now(),
+    refreshToken: "refresh-token-" + Date.now(),
+    user: {
+      id: Date.now(),
+      mobileNumber,
+      email: session.email,
+    },
   });
 });
 
-// Get Profile
-app.get('/v1/store-user/store/user/', (req, res) => {
-  res.json({ 
-    data: { 
-      name: 'Kathirvel', 
-      mobileNumber: '9360724040',
-      email: 'user@example.com'
-    } 
+// Profile
+app.get("/v1/store-user/store/user/", (req, res) => {
+  res.json({
+    data: {
+      name: "Kathirvel",
+      mobileNumber: "9360724040",
+      email: "user@example.com",
+    },
   });
 });
 
 const PORT = process.env.PORT || 5001;
+
 app.listen(PORT, () => {
-  console.log(`🚀 Backend running: http://localhost:${PORT}`);
+  console.log(`🚀 Server Running : http://localhost:${PORT}`);
 });

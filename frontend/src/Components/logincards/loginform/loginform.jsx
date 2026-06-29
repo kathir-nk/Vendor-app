@@ -64,8 +64,12 @@ const LoginForm = () => {
       {(formik) => (
         <Form className={styles.login_form}>
           <img src={LoginLogo} alt="logo" />
-          <h6>Get started with REWARDIFY</h6>
-          <p>Enter your details</p>
+          <h6>Welcome Back 👋</h6>
+
+<p>
+  Enter your mobile number and email to receive
+  a secure OTP.
+</p>
 
           <FormikControl
             control="input"
