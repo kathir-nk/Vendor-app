@@ -1,11 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://vendor-app-2ln8.onrender.com",  // ✅ Local backend
+  baseURL: "https://vendor-app-1-6dt1.onrender.com",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
-  timeout: 10000,
+  timeout: 30000, // 30 seconds
 });
 
 export default api;
