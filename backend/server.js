@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
-const nodemailer = require("nodemailer");
+const axios = require("axios");
 
 const app = express();
 
@@ -11,17 +11,6 @@ app.use(express.json());
 
 // OTP Store
 global.otps = new Map();
-
-// SMTP Transport
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
 
 // Generate OTP
 app.post("/v1/store-user/auth/generate-otp", async (req, res) => {
@@ -43,23 +32,36 @@ app.post("/v1/store-user/auth/generate-otp", async (req, res) => {
       email,
     });
 
-    await transporter.sendMail({
-      from: `"Rewardify" <${process.env.EMAIL_FROM}>`,
-      to: email,
-      subject: "Your Rewardify Login OTP",
-      html: `
-        <div style="font-family:Arial;padding:20px">
-          <h2>🔐 Rewardify OTP</h2>
-          <p>Your OTP is:</p>
-
-          <h1 style="letter-spacing:8px;color:#2563eb">
-            ${otp}
-          </h1>
-
-          <p>This OTP is valid for 5 minutes.</p>
-        </div>
-      `,
-    });
+    await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: "Rewardify",
+          email: process.env.EMAIL_FROM,
+        },
+        to: [
+          {
+            email: email,
+          },
+        ],
+        subject: "Your Rewardify Login OTP",
+        htmlContent: `
+          <div style="font-family:Arial;padding:20px">
+            <h2>🔐 Rewardify OTP</h2>
+            <p>Your OTP is:</p>
+            <h1 style="letter-spacing:8px;color:#2563eb">${otp}</h1>
+            <p>This OTP is valid for 5 minutes.</p>
+          </div>
+        `,
+      },
+      {
+        headers: {
+          "api-key": process.env.BREVO_API_KEY,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    );
 
     console.log(`✅ OTP Sent : ${email} -> ${otp}`);
 
@@ -69,13 +71,14 @@ app.post("/v1/store-user/auth/generate-otp", async (req, res) => {
       sessionId,
       mobileNumber,
     });
+
   } catch (err) {
-    console.error("SMTP ERROR :", err);
+    console.error("BREVO ERROR:", err.response?.data || err.message);
 
     return res.status(500).json({
       success: false,
       message: "Failed to send OTP",
-      error: err.message,
+      error: err.response?.data || err.message,
     });
   }
 });
