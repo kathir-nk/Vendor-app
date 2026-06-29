@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5001',  // ✅ Local backend
+  baseURL: "https://vendor-app-2ln8.onrender.com",  // ✅ Local backend
   headers: {
     'Content-Type': 'application/json',
   },
